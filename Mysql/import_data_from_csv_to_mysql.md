@@ -2,8 +2,8 @@
 ### 1.整理 csv 文件
     a. 问题：文件中没有分隔符，列与列之间间隔的空格不一致；文件中有很多空行；
     b. 解决办法：用shell指令去除空格并添加逗号分隔符，用shell指令去除空行：
-    cat 201810to201908-og_audit_file.csv | tr -s '[:blank:]' ',' > og_file_audit.csv
-    sed -i '/^[[:space:]]*$/d' og_file_audit.csv
+    cat 201810to201908-og_audit.csv | tr -s '[:blank:]' ',' > og_file.csv
+    sed -i '/^[[:space:]]*$/d' og_file.csv
 
 ### 2. 实际工作中数据迁移有可能某列是不需要，这时我们需要去除某列
     可以基于列号来去除某列：
@@ -17,18 +17,18 @@
     Transform data while importing
     
     导入语句：
-    LOAD DATA INFILE 'd:/sttl_prov_monthly.csv'
-    INTO TABLE sttl_prov_monthly
+    LOAD DATA INFILE 'd:/sttl_monthly.csv'
+    INTO TABLE sttl_monthly
     FIELDS TERMINATED BY ',' ENCLOSED BY '"'
     LINES TERMINATED BY '\n'
-    (@month,hm_prov_cd,vstd_prov_cd,rm_chg,calling_count,called_count,lte_called_count,rm_chg_dur,sttl_rm_chg_dur,vpmn_rm_chg,vpmn_calling_count,vpmn_called_count,lte_vpmn_called_count,vpmn_rm_chg_dur,sttl_vpmn_rm_chg_dur)
+    (@month,hm_cd,vstd_cd,chg,count,chg_dur,sttl_chg_dur)
     SET month = DATE_FORMAT(@month, "%Y%m");
     
     表中的字段列出来，在需要转换类型@字段，然后set字段中用mysql方法进行转换
     
 ### 4. 导入的过程中出现了字段超出表字段范围：
-    Out of range value for 'rm_chg' at row 121918;
-    问题定位：表中rm_chg字段的类型是int，查询int的取值范围是：-2147483648 and 2147483647
+    Out of range value for 'chg' at row 121918;
+    问题定位：表中chg字段的类型是int，查询int的取值范围是：-2147483648 and 2147483647
     导入的数据中该值是3199080506  超过了int的范围，所以该字段需要改成bigint类型
 
 ## 5. ERROR 1290（HY000):The mysql server is running with the secure -file -priv
